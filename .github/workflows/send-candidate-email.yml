@@ -1,0 +1,29 @@
+name: Send email to candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      recipient_email:
+        description: "Email of the recipient"
+        required: true
+        type: string
+      recipient_name:
+        description: "Name of the recipient"
+        required: true
+        type: string
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email
+        run: |
+          curl -X POST "https://api.resend.com/emails" \
+            -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "from": "Equipo DevOps <onboarding@resend.dev>",
+              "to": ["${{ github.event.inputs.recipient_email }}"],
+              "subject": "Tu nuevo repositorio está listo 🎉",
+              "html": "<p>Hola ${{ github.event.inputs.recipient_name }},</p><p>Tu nuevo repositorio ha sido creado a partir de la plantilla.</p><p>Puedes acceder aquí: <a href=\"${{ github.server_url }}/${{ github.repository }}\">${{ github.server_url }}/${{ github.repository }}</a></p><p>¡Saludos!</p>"
+            }'
